@@ -2,4 +2,4 @@
 
 Solved the problem with too many variables using vector projection techniques
 
-More information explained in the .pdf file
+For more information, please refer to the PDF file above
