@@ -41,6 +41,7 @@ class Ball:
         self.dx = np.random.randint(-12,13)
         self.dy = np.random.randint(-12,13)
         self.color = (np.random.randint(0,256),np.random.randint(0,256),np.random.randint(0,256))
+        self.has_collided = 0
     
     def update(self,):
         self.x+=self.dx
@@ -53,6 +54,16 @@ class Ball:
 
     def draw(self, screen):
         pygame.draw.circle(screen, self.color, [self.x, self.y], self.radius, 0)
+
+    def apply_friction(self, friction_coefficient):
+        if self.has_collided >= 3:
+            self.dx *= (1 - friction_coefficient)
+            self.dy *= (1 - friction_coefficient)
+
+    def is_at_rest(self, velocity_threshold=1):
+        return abs(self.dx) < velocity_threshold and abs(self.dy) < velocity_threshold
+
+
 
 
 def collide(ball, ball2):
@@ -80,7 +91,6 @@ def collide(ball, ball2):
         v1Tan_Next_vec = v1Tan*tanUnit
         v2Tan_Next_vec = v2Tan*tanUnit
 
-
         v1Next = v1Norm_Next_vec + v1Tan_Next_vec
         v2Next = v2Norm_Next_vec + v2Tan_Next_vec
 
@@ -88,6 +98,9 @@ def collide(ball, ball2):
         ball.dy = v1Next[1]
         ball2.dx = v2Next[0]
         ball2.dy = v2Next[1]
+
+        ball.has_collided += 1
+        ball2.has_collided += 1
 
 def collide2(ball, ball2):
     if ((ball.x - ball2.x)**2 + (ball.y - ball2.y)**2)**(1/2)<(ball.radius+ball2.radius):
@@ -107,8 +120,13 @@ def collide2(ball, ball2):
         ball2.dx = v2Next[0]
         ball2.dy = v2Next[1]
 
+        ball.has_collided += 1
+        ball2.has_collided += 1
+    
+
 # 게임 종료 전까지 반복
 done = False
+friction_coefficient = 0.01
 
 listOfBalls = []
 for i in range(2):
@@ -128,10 +146,14 @@ while not done:
 
     # 게임 로직 구간
     # 속도에 따라 원형 위치 변경 #state up date/logic update/parameter update
-
+    all_at_rest = True
     for i in range(2):
+        ball.apply_friction(friction_coefficient) # 마찰력 적용
         ball = listOfBalls[i]
         ball.update()
+
+        # if not ball.is_at_rest():
+        #     all_at_rest = False
 
     collide2(listOfBalls[0], listOfBalls[1])
     # 윈도우 화면 채우기
@@ -145,6 +167,9 @@ while not done:
         ball.draw(screen)
 
     # 화면 업데이트
+    # if all_at_rest:
+    #     balls = regenerate_scene()    
+
     pygame.display.flip()
 
     # 초당 60 프레임으로 업데이트
