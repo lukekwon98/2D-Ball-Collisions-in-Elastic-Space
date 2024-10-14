@@ -1,4 +1,4 @@
-# 2D-Ball-Collisions-in-an-Elastic-Space
+# Elastic-Collisions-of-Balls-in-2D-Space
 
 Solved the problem with too many variables using vector projection techniques
 
